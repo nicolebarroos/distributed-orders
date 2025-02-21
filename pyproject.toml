@@ -4,6 +4,8 @@ version = "0.1.0"
 description = ""
 authors = ["Nicole Barros"]
 readme = "README.md"
+packages = [{include = "app"}]  # Garante que a pasta app seja reconhecida como pacote
+
 
 [tool.poetry.dependencies]
 python = "^3.10"

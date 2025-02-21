@@ -1,12 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-#O padrão Singleton garante que sempre utilizamos a mesma conexão com o banco, 
-#evitando múltiplas conexões desnecessárias e melhorando a performance.
 class Database:
     _instance = None
     _engine = None
@@ -21,18 +19,11 @@ class Database:
     @classmethod
     def _setup(cls):
         DATABASE_URL = os.getenv("DATABASE_URL")
+        cls._engine = create_engine(DATABASE_URL)
+        cls._SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=cls._engine)
 
-        #Criando o engine assíncrono
-        cls._engine = create_async_engine(DATABASE_URL, echo=True)
-
-        #Criando um sessionmaker assíncrono
-        cls._SessionLocal = sessionmaker(
-            bind=cls._engine, class_=AsyncSession, expire_on_commit=False
-        )
-
-    async def get_session(self):
-        async with self._SessionLocal() as session:
-            yield session
+    def get_session(self):
+        return self._SessionLocal()
 
 Base = declarative_base()
 db_instance = Database()
